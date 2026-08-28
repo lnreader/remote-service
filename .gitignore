@@ -162,3 +162,12 @@ temp.py
 
 # Pyannotate generated stubs
 type_info.json
+
+# LNReader container runtime
+data/
+.webui-auth/
+test-results/
+*.htpasswd
+
+# Local Python virtual environments
+.venv*/

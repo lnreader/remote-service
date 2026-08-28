@@ -1,18 +1,24 @@
 services:
-  web:
-    build: .
-    container_name: lnreader-backup-server
-    volumes:
-      - ${STORAGE_PATH:-~/.LNReader}:/home/lnreader/.LNReader
+  lnreader:
+    image: ${LNREADER_IMAGE:-ghcr.io/lnreader/remote-service:latest}
     environment:
-      - PORT=${PORT:-8000}
+      PUID: "${PUID:-}"
+      PGID: "${PGID:-}"
+      WORKERS: "${WORKERS:-2}"
+      THREADS: "${THREADS:-2}"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+      FIX_PERMISSIONS: "${FIX_PERMISSIONS:-true}"
+      WEB_UI_SLUG: "${WEB_UI_SLUG:-lnr-vault-7f3c9}"
+      WEB_UI_USERNAME: "${WEB_UI_USERNAME:-admin}"
+      WEB_UI_PASSWORD: "${WEB_UI_PASSWORD:-}"
+      PUBLIC_URL: "${PUBLIC_URL:-}"
+      MAX_UPLOAD_SIZE: "${MAX_UPLOAD_SIZE:-20g}"
+    volumes:
+      - type: bind
+        source: ${STORAGE_PATH:-./data}
+        target: /home/lnreader/.LNReader
     ports:
-      - "${PORT:-8000}:${PORT:-8000}"
+      - "${HOST_PORT:-8000}:8000"
     restart: unless-stopped
-    user: root
-    command: >
-      /bin/sh -c "
-        mkdir -p /home/lnreader/.LNReader &&
-        echo '{\"workspace\": \"/home/lnreader/.LNReader\"}' > /home/lnreader/.LNReader/config.json &&
-        chown -R lnreader:lnreader /home/lnreader/.LNReader &&
-        su -c 'pdm run gunicorn --config docker/gunicorn.conf.py \"src.server.server:app\"' lnreader"
+    security_opt:
+      - no-new-privileges:true

@@ -1,0 +1,105 @@
+worker_processes auto;
+pid /run/lnreader/nginx.pid;
+error_log /run/lnreader/nginx.error.log warn;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    server_tokens off;
+    access_log off;
+    sendfile on;
+    keepalive_timeout 30;
+
+    # Normalize the original client scheme before proxying to Gunicorn.
+    #
+    # Reverse proxies may provide several HTTPS indicators. Only the
+    # normalized X-Forwarded-Proto value is passed to Gunicorn.
+    map $http_x_forwarded_proto $lnreader_forwarded_proto {
+        default $scheme;
+        http http;
+        https https;
+    }
+
+    # All temporary paths must remain writable when Nginx runs as the non-root
+    # lnreader user.
+    client_body_temp_path /run/lnreader/client_temp;
+    proxy_temp_path /run/lnreader/proxy_temp;
+    fastcgi_temp_path /run/lnreader/fastcgi_temp;
+    uwsgi_temp_path /run/lnreader/uwsgi_temp;
+    scgi_temp_path /run/lnreader/scgi_temp;
+
+    limit_req_zone $binary_remote_addr zone=lnreader_ui_auth:10m rate=30r/m;
+
+    upstream lnreader_api {
+        server 127.0.0.1:8001;
+        keepalive 16;
+    }
+
+    server {
+        listen __PORT__ default_server;
+        server_name _;
+        client_max_body_size __MAX_UPLOAD_SIZE__;
+
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "no-referrer" always;
+        add_header X-Frame-Options "DENY" always;
+
+        location = /__WEB_UI_SLUG__ {
+            return 308 /__WEB_UI_SLUG__/;
+        }
+
+        location = /__WEB_UI_SLUG__/ {
+            limit_except GET POST { deny all; }
+            limit_req zone=lnreader_ui_auth burst=10 nodelay;
+
+            auth_basic "LNReader Vault";
+            auth_basic_user_file /run/lnreader/.htpasswd;
+
+            add_header Cache-Control "no-store, no-cache, must-revalidate, max-age=0" always;
+            add_header Pragma "no-cache" always;
+            add_header X-Robots-Tag "noindex, nofollow, noarchive" always;
+            add_header X-Content-Type-Options "nosniff" always;
+            add_header Referrer-Policy "no-referrer" always;
+            add_header X-Frame-Options "DENY" always;
+            add_header Permissions-Policy "accelerometer=(), camera=(), geolocation=(), microphone=(), payment=(), usb=()" always;
+            add_header Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data:; form-action 'self'; frame-ancestors 'none'; base-uri 'none'" always;
+
+            include /etc/nginx/fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME /app/web/index.php;
+            fastcgi_param SCRIPT_NAME /__WEB_UI_SLUG__/;
+            fastcgi_param HTTP_X_FORWARDED_PROTO $http_x_forwarded_proto;
+            fastcgi_param HTTP_X_FORWARDED_HOST $http_x_forwarded_host;
+            fastcgi_param HTTP_HOST $http_host;
+            fastcgi_param REQUEST_SCHEME $scheme;
+            fastcgi_pass 127.0.0.1:9000;
+        }
+
+        location / {
+            proxy_http_version 1.1;
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Host $http_host;
+
+            # Pass exactly one scheme indicator to Gunicorn. Alternate
+            # secure-scheme headers such as X-Forwarded-Ssl can conflict
+            # with X-Forwarded-Proto after multiple reverse-proxy hops.
+            proxy_set_header X-Forwarded-Proto $lnreader_forwarded_proto;
+            proxy_set_header X-Forwarded-Ssl "";
+            proxy_set_header X-Forwarded-Protocol "";
+
+            # Do not forward the hop-by-hop Connection header.
+            proxy_set_header Connection "";
+
+            proxy_request_buffering off;
+            proxy_buffering off;
+            proxy_read_timeout 300s;
+            proxy_send_timeout 300s;
+            proxy_pass http://lnreader_api;
+        }
+    }
+}
