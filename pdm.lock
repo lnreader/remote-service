@@ -2,16 +2,19 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default"]
+groups = ["default", "desktop", "server"]
 strategy = ["cross_platform", "inherit_metadata"]
-lock_version = "4.4.1"
-content_hash = "sha256:66797f50c3b2c0156b199e5cd0aba0ff1740fa217f7609a239d47d9b9efedde3"
+lock_version = "4.5.1"
+content_hash = "sha256:15f6a4bde7f1c2545fec37a83adffd9a63f94c8e0462783d4a35823b1aa9f0ff"
+
+[[metadata.targets]]
+requires_python = ">=3.10,<3.13"
 
 [[package]]
 name = "altgraph"
 version = "0.17.4"
 summary = "Python graph (network) package"
-groups = ["default"]
+groups = ["desktop"]
 files = [
     {file = "altgraph-0.17.4-py2.py3-none-any.whl", hash = "sha256:642743b4750de17e655e6711601b077bc6598dbfa3ba5fa2b2a35ce12b508dff"},
     {file = "altgraph-0.17.4.tar.gz", hash = "sha256:1b5afbb98f6c4dcadb2e2ae6ab9fa994bbb8c1d75f4fa96d340f9437ae454406"},
@@ -73,6 +76,18 @@ files = [
 ]
 
 [[package]]
+name = "gunicorn"
+version = "27.0.1"
+requires_python = ">=3.10"
+summary = "WSGI HTTP Server for UNIX"
+groups = ["server"]
+marker = "sys_platform != \"win32\""
+files = [
+    {file = "gunicorn-27.0.1-py3-none-any.whl", hash = "sha256:378b26b9a38adcf4592f28828233c1716acc55e833ea06bf48719782efaa0d10"},
+    {file = "gunicorn-27.0.1.tar.gz", hash = "sha256:b1514965361c8b7e8107a80aa2a92636878df1ccfac6dd204a676426e04d9e3e"},
+]
+
+[[package]]
 name = "itsdangerous"
 version = "2.1.2"
 requires_python = ">=3.7"
@@ -101,7 +116,7 @@ files = [
 name = "macholib"
 version = "1.16.3"
 summary = "Mach-O header analysis and editing"
-groups = ["default"]
+groups = ["desktop"]
 marker = "sys_platform == \"darwin\""
 dependencies = [
     "altgraph>=0.17",
@@ -136,7 +151,7 @@ name = "packaging"
 version = "23.2"
 requires_python = ">=3.7"
 summary = "Core utilities for Python packages"
-groups = ["default"]
+groups = ["desktop"]
 files = [
     {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
     {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
@@ -147,7 +162,7 @@ name = "pefile"
 version = "2023.2.7"
 requires_python = ">=3.6.0"
 summary = "Python PE parsing module"
-groups = ["default"]
+groups = ["desktop"]
 marker = "sys_platform == \"win32\""
 files = [
     {file = "pefile-2023.2.7-py3-none-any.whl", hash = "sha256:da185cd2af68c08a6cd4481f7325ed600a88f6a813bad9dea07ab3ef73d8d8d6"},
@@ -159,7 +174,7 @@ name = "pyinstaller"
 version = "6.3.0"
 requires_python = "<3.13,>=3.8"
 summary = "PyInstaller bundles a Python application and all its dependencies into a single package."
-groups = ["default"]
+groups = ["desktop"]
 dependencies = [
     "altgraph",
     "macholib>=1.8; sys_platform == \"darwin\"",
@@ -189,7 +204,7 @@ name = "pyinstaller-hooks-contrib"
 version = "2024.0"
 requires_python = ">=3.7"
 summary = "Community maintained hooks for PyInstaller"
-groups = ["default"]
+groups = ["desktop"]
 dependencies = [
     "packaging>=22.0",
     "setuptools>=42.0.0",
@@ -204,7 +219,7 @@ name = "pyqt6"
 version = "6.6.1"
 requires_python = ">=3.6.1"
 summary = "Python bindings for the Qt cross platform application toolkit"
-groups = ["default"]
+groups = ["desktop"]
 dependencies = [
     "PyQt6-Qt6>=6.6.0",
     "PyQt6-sip<14,>=13.6",
@@ -220,7 +235,7 @@ files = [
 name = "pyqt6-qt6"
 version = "6.6.1"
 summary = "The subset of a Qt installation needed by PyQt6."
-groups = ["default"]
+groups = ["desktop"]
 files = [
     {file = "PyQt6_Qt6-6.6.1-py3-none-macosx_10_14_x86_64.whl", hash = "sha256:0409aa09b8dae90d5f00ba2d9761e671dfbc54ab169cff8f4cdfecd7f664fd0f"},
     {file = "PyQt6_Qt6-6.6.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:8dcac0bd9df13d63deafb6a61969b832c34467da4a28d2b7abf78066bfce22e6"},
@@ -233,7 +248,7 @@ name = "pyqt6-sip"
 version = "13.6.0"
 requires_python = ">=3.7"
 summary = "The sip module support for PyQt6"
-groups = ["default"]
+groups = ["desktop"]
 files = [
     {file = "PyQt6_sip-13.6.0-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:3bf03e130fbfd75c9c06e687b86ba375410c7a9e835e4e03285889e61dd4b0c4"},
     {file = "PyQt6_sip-13.6.0-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:43fb8551796030aae3d66d6e35e277494071ec6172cd182c9569ab7db268a2f5"},
@@ -247,7 +262,7 @@ name = "pywin32-ctypes"
 version = "0.2.2"
 requires_python = ">=3.6"
 summary = "A (partial) reimplementation of pywin32 using ctypes/cffi"
-groups = ["default"]
+groups = ["desktop"]
 marker = "sys_platform == \"win32\""
 files = [
     {file = "pywin32-ctypes-0.2.2.tar.gz", hash = "sha256:3426e063bdd5fd4df74a14fa3cf80a0b42845a87e1d1e81f6549f9daec593a60"},
@@ -259,7 +274,7 @@ name = "setuptools"
 version = "69.0.3"
 requires_python = ">=3.8"
 summary = "Easily download, build, install, upgrade, and uninstall Python packages"
-groups = ["default"]
+groups = ["desktop"]
 files = [
     {file = "setuptools-69.0.3-py3-none-any.whl", hash = "sha256:385eb4edd9c9d5c17540511303e39a147ce2fc04bc55289c322b9e5904fe2c05"},
     {file = "setuptools-69.0.3.tar.gz", hash = "sha256:be1af57fc409f93647f2e8e4573a142ed38724b8cdd389706a867bb4efcf1e78"},

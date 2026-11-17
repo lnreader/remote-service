@@ -2,30 +2,17 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    python3-dev \
-    libc6-dev \
-    libx11-dev \
-    libxext-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install PDM
 RUN pip install --no-cache-dir pdm
 
 # Copy dependency files
 COPY pyproject.toml pdm.lock ./
 
-# Install dependencies
-RUN pdm install --prod
+# Install server dependencies only (PyQt6/PyInstaller are desktop-only dev deps)
+RUN pdm install --prod -G server
 
 # Copy application code
 COPY . .
-
-# Install Gunicorn
-RUN pdm add gunicorn
 
 # Create non-root user
 RUN useradd -m lnreader && \
