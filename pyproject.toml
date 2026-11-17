@@ -4,16 +4,26 @@ version = "0.1.0"
 description = "LNReader Remote Service"
 authors = [{ name = "LNReader" }]
 dependencies = [
-    "pyinstaller>=6.3.0",
-    "pyqt6>=6.6.1",
     "flask>=3.0.1",
 ]
 requires-python = ">=3.10,<3.13"
 readme = "README.md"
 license = { text = "MIT" }
 
+[project.optional-dependencies]
+server = [
+    "gunicorn>=21.2.0; sys_platform != 'win32'",
+]
+
 [tool.pdm]
 distribution = false
+
+# GUI/exe build only; installed by `pdm install`, skipped by `pdm install --prod`
+[tool.pdm.dev-dependencies]
+desktop = [
+    "pyinstaller>=6.3.0",
+    "pyqt6>=6.6.1",
+]
 
 [tool.pdm.scripts]
 server = { call = "src.server.server:main" }
